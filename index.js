@@ -1,31 +1,45 @@
 class CountdownTimer {
   constructor({ selector, targetDate }) {
-    this.element = selector;
+    this.selector = selector;
     this.targetDate = targetDate;
+    // this.currentTime = Date.now();
+
+    this.refs = {
+      days: document.querySelector(`${selector} [data-value="days"]`),
+      hours: document.querySelector(`${selector} [data-value="hours"]`),
+      mins: document.querySelector(`${selector} [data-value="mins"]`),
+      secs: document.querySelector(`${selector} [data-value="secs"]`),
+      timerFace: document.querySelector('#timer-1'),
+    };
   }
 
-  countTime() {
-    const time = this.targetDate - Date.now();
-
-    const days = Math.floor(time / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((time % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const mins = Math.floor((time % (1000 * 60 * 60)) / (1000 * 60));
-    const secs = Math.floor((time % (1000 * 60)) / 1000);
-
-    document.querySelector('[data-value="days"]').textContent =
-      days < 10 ? `0${days}` : `${days}`;
-    document.querySelector('[data-value="hours"]').textContent =
-      hours < 10 ? `0${hours}` : `${hours}`;
-    document.querySelector('[data-value="mins"]').textContent =
-      mins < 10 ? `0${mins}` : `${mins}`;
-    document.querySelector('[data-value="secs"]').textContent =
-      secs < 10 ? `0${secs}` : `${secs}`;
-  }
-
-  startTimer() {
+  renderCountdownTimer() {
     setInterval(() => {
-      this.countTime();
+      // const currentTime = Date.now();
+      const deltaTime = this.targetDate - Date.now();
+      this.updateTimerFace(getTimeComponents(deltaTime));
     }, 1000);
+
+    function getTimeComponents(time) {
+      const days = pad(Math.floor(time / (1000 * 60 * 60 * 24)));
+      const hours = pad(
+        Math.floor((time % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+      );
+      const mins = pad(Math.floor((time % (1000 * 60 * 60)) / (1000 * 60)));
+      const secs = pad(Math.floor((time % (1000 * 60)) / 1000));
+      return { days, hours, mins, secs };
+    }
+
+    function pad(value) {
+      return String(value).padStart(2, '0');
+    }
+  }
+
+  updateTimerFace({ days, hours, mins, secs }) {
+    this.refs.days.innerHTML = days;
+    this.refs.hours.innerHTML = hours;
+    this.refs.mins.innerHTML = mins;
+    this.refs.secs.innerHTML = secs;
   }
 }
 
@@ -33,4 +47,7 @@ const timer = new CountdownTimer({
   selector: '#timer-1',
   targetDate: new Date('Jul 17, 2021'),
 });
-timer.startTimer();
+
+console.log(timer);
+
+timer.renderCountdownTimer();
